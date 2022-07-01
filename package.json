@@ -1,0 +1,23 @@
+{
+  "name": "new",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.7",
+    "parcel": "^2.0.0-nightly.1131",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.4"
+  },
+  "dependencies": {
+    "alpinejs": "^3.10.2"
+  }
+}
