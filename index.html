@@ -3,89 +3,476 @@
 
 <head>
     <title>Joobu</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
     <script type="module" src="app.js"></script>
 </head>
 
-<body class="bg-[url('unsplash.jpg')] bg-cover" x-data="{ openMenu : false }"
-    :class="openMenu ? 'overflow-hidden' : 'overflow-visible' ">
+<body x-data="sidebar()" class="bg-wild-sand text-gray-700 font-montserrat" @resize.window="handleResize()">
+    <div x-show="isOpen()" class="absolute w-full h-[100%] bg-black opacity-50">
+    </div>
+    <div class="md:flex">
+        <div x-show="isOpen()" class="fixed lg:static inset-0 flex bg-white h-screen z-10">
+            <div @click.away="handleAway()" class="md:w-80 w-full bg-gray-800 shadow">
+                <div class="flex bg-gray-900 content-between">
+                    <div class="p-5 w-full">
+                        <img class="object-cover mx-auto" src="./img/logo.svg">
+                    </div>
+                    <a @click.prevent="handleClose()" class="p-3 hover:bg-fd-dark-blue flex-1 flex items-center"
+                        href="#">
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="flex flex-row px-5 py-6 justify-between w-full bg-gray-900 border-b border-slate-300">
+                    <button type="button" :class="{ 'bg-fd-dark-blue text-white': tab === 'Parts' }"
+                        @click="handleClickTab('Parts')"
+                        class="p-3 flex justify-center align-center hover:bg-fd-dark-blue hover:text-white rounded">
+                        Parts</button>
+                    <button type="button" :class="{ 'bg-fd-dark-blue text-white': tab === 'Accessories' }"
+                        @click="handleClickTab('Accessories')"
+                        class="p-3 flex justify-center align-center hover:bg-fd-dark-blue hover:text-white rounded">
+                        Accessories
+                    </button>
+                    <button type="button" :class="{ 'bg-fd-dark-blue text-white': tab === 'Tools' }"
+                        @click="handleClickTab('Tools')"
+                        class="p-3 flex justify-center align-center hover:bg-fd-dark-blue hover:text-white rounded">
+                        Tools</button>
+                </div>
+                <div :class="{ 'md:block hidden': openSubmenu || openLastSubmenu }">
+                    <div class="py-2">
+                        <div x-show="tab === 'Accessories'" class="mb-3">
+                            <button type="button"
+                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                                <span>For Apple accessoires</span>
+                            </button>
+                            <button type="button"
+                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                                <span>Samsung accessoires</span>
+                            </button>
+                            <button type="button"
+                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                                <span>NOVAL</span>
+                            </button>
+                        </div>
+                        <template x-for="category in categories">
+                            <button type="button"
+                                class="flex items-center justify-between group w-full p-1 px-10 hover:bg-fd-dark-blue hover:text-white"
+                                @click="handleClickCategory(category)">
+                                <span x-text="category.title"></span>
+                                <template x-if="category.isHavingSubMenu">
+                                    <div :class="category.id === curCategory.id ? 'visible' : 'invisible' ">
+                                        <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor" viewBox="0 0 20 20"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path fillrule="evenodd"
+                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                                                cliprule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                </template>
+                            </button>
+                        </template>
+                    </div>
 
-    <style>
-        [x-cloak] {
-            display: none !important;
+                    <div class="py-2">
+                        <div class="flex align-center p-1 px-10">
+                            <img class="object-cover w-5 h-5" src="./img/UK.svg">
+                            <span class="px-3" x-text="curLang">
+                        </div>
+                    </div>
+                    <div class="py-2">
+                        <template x-for="setting in settings">
+                            <button type="button" class="flex w-full p-1 px-10 text-s">
+                                <span x-text="setting.title"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                <div x-show="openSubmenu" x-transition:enter-start="opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in transition-slow"
+                    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
+                    @click.away="handleAway()" :class="{ 'md:left-80 left-0': openSubmenu}"
+                    class="bg-white shadow rounded-sm rounded-xl absolute mt-2 ml-1 p-5 top-32 list md:w-auto w-full md:h-auto h-full text-sm font-medium dark:bg-slate-800">
+                    <div class="flex justify-between items-center p-4">
+                        <p class="text-xbase font-bold" x-text="curCategory.title">
+                        </p>
+                        <p class="text-normal font-bold">
+                            See all >
+                        </p>
+                    </div>
+                    <!-- Sub Menu -->
+                    <div class="p-4 flex h-auto md:h-80">
+                        <div :class="{'md:block hidden': openLastSubmenu}"
+                            class="w-80 pl-1 pr-5 h-full overflow-y-auto">
+                            <template x-if="tab !== 'Accessories'">
+                                <template x-for="category in subCategories">
+                                    <button type="button"
+                                        class="flex items-center justify-between group w-full p-1 hover:bg-fd-dark-blue hover:text-white"
+                                        @click="handleClickSubCategory(category)">
+                                        <span x-text="category.title"></span>
+                                        <template x-if="category.isHavingSubMenu">
+                                            <div :class="category.id === curSubCategory.id ? 'visible' : 'invisible'"
+                                                class="mr-8">
+                                                <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor"
+                                                    viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                    <path fillrule="evenodd"
+                                                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                                                        cliprule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        </template>
+                                    </button>
+                                </template>
+                            </template>
+                            <template x-if="tab === 'Accessories'">
+                                <template x-for="category in subCategories">
+                                    <div class="by-1">
+                                        <div class="flex items-center font-bold w-full p-1">
+                                            <span x-text="category.title"></span>
+                                        </div>
+                                        <template x-for="child in category.childs">
+                                            <button type="button"
+                                                class="flex items-center justify-between w-full p-1 pl-2 hover:bg-fd-dark-blue hover:text-white"
+                                                @click="handleClickSubCategory(child)">
+                                                <span x-text="child.title"></span>
+                                                <template x-if="child.isHavingSubMenu">
+                                                    <div :class="child.id === curSubCategory.id ? 'visible' : 'invisible'"
+                                                        class="mr-8">
+                                                        <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor"
+                                                            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                            <path fillrule="evenodd"
+                                                                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                                                                cliprule="evenodd"></path>
+                                                        </svg>
+                                                    </div>
+                                                </template>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                        <!-- Last Menu -->
+                        <div :class="{'md:block hidden': openSubmenu && !openLastSubmenu}">
+                            <template x-if="openLastSubmenu && tab !== 'Tools'">
+                                <div
+                                    class="flex flex-col flex-wrap w-sub-menu md:border-l md:border-gray h-full pl-5 overflow-x-auto">
+                                    <template x-for="category in lastCategories">
+                                        <template x-if="category.parent == curSubCategory.id">
+                                            <button type="button"
+                                                class="flex items-center w-64 p-1 hover:bg-fd-dark-blue hover:text-white"
+                                                @click="">
+                                                <span x-text="category.title"></span>
+                                            </button>
+                                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <!-- Compatible Models -->
+                    <template x-if="openLastSubmenu && tab !== 'Tools'">
+                        <div
+                            class="flex flex-row-reverse items-center p-6 space-x-2 rounded-b border-t border-weak-gray">
+                            <p class="text-gray font-bold text-sm ml-2">iPhone 13, iPhone 8, iPhone 12</p>
+                            <button type="button"
+                                class="bg-weak-gray hover:bg-gray focus:ring-4 focus:outline-none focus:ring-gray font-medium rounded-3xl text-sm px-5 py-1 text-center">Compatible
+                                models</button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div>
+            <nav class="text-gray-700 bg-white flex">
+                <div x-show="!isOpen()" class="flex">
+                    <a x-show="!isOpen()" @click.prevent="handleOpen()"
+                        class="p-3 hover:bg-fd-dark-blue hover:text-white" href="#">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </a>
+                    <div class="p-3 w-full">
+                        <img class="object-cover mx-auto" src="./img/logo.svg">
+                    </div>
+                </div>
+                <div class="flex ml-auto">
+                    <a class="p-3 hover:bg-fd-dark-blue hover:text-white" href="#">
+                        Account
+                    </a>
+                </div>
+            </nav>
+            <main class="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
+                <div class="shadow-lg">
+                    <div class="px-4 py-3 text-white bg-fd-dark-blue">
+                        Why learn Alpine.js?
+                    </div>
+                    <p class="p-4 bg-white">
+                        In the first lesson, the teacher Sergio starts off by explaining why you should learn
+                        the library. Shortly speaking, Alpine.js works well when you need a small amount of JS, e.g. a
+                        few sidebar menus or tabs. This means you get a bunch of power at a crazy small size with no
+                        need
+                        to NPM install.
+                        Andre also gives you an introduction to himself. He is a full-stack developer and Youtuber who
+                        teaches web development concepts such as Laravel, Vue and Tailwind CSS. We're thrilled to have
+                        him onboard as a Scrimba teacher!
+                    </p>
+                </div>
+                <div class="shadow-lg">
+                    <div class="px-4 py-3 text-white bg-fd-dark-blue">
+                        Why learn Alpine.js?
+                    </div>
+                    <p class="p-4 bg-white">
+                        In the first lesson, the teacher Sergio starts off by explaining why you should learn
+                        the library. Shortly speaking, Alpine.js works well when you need a small amount of JS, e.g. a
+                        few sidebar menus or tabs. This means you get a bunch of power at a crazy small size with no
+                        need
+                        to NPM install.
+                        Andre also gives you an introduction to himself. He is a full-stack developer and Youtuber who
+                        teaches web development concepts such as Laravel, Vue and Tailwind CSS. We're thrilled to have
+                        him onboard as a Scrimba teacher!
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        function sidebar() {
+            const breakpoint = 1280
+            return {
+                open: {
+                    above: true,
+                    below: false,
+                },
+                isAboveBreakpoint: window.innerWidth > breakpoint,
+
+                categories: [], subCategories: [], lastCategories: [],
+
+                pCategories: [
+                    { id: 1, title: 'For Apple', isHavingSubMenu: true },
+                    { id: 2, title: 'Huawei', isHavingSubMenu: false },
+                    { id: 3, title: 'Sony', isHavingSubMenu: false },
+                    { id: 4, title: 'LG', isHavingSubMenu: true },
+                    { id: 5, title: 'OnePlus', isHavingSubMenu: true },
+                    { id: 6, title: 'Nokia', isHavingSubMenu: true },
+                    { id: 7, title: 'HTC', isHavingSubMenu: true },
+                    { id: 8, title: 'Motorola', isHavingSubMenu: true },
+                    { id: 9, title: 'Alcatel', isHavingSubMenu: true },
+                    { id: 10, title: 'Acer', isHavingSubMenu: true },
+                    { id: 11, title: 'Blackberry', isHavingSubMenu: true },
+                    { id: 12, title: 'Asus', isHavingSubMenu: true },
+                    { id: 13, title: 'BQ', isHavingSubMenu: true },
+                    { id: 14, title: 'Wiko', isHavingSubMenu: true },
+                    { id: 15, title: 'Xiaomi', isHavingSubMenu: true },
+                    { id: 16, title: 'Lenovo', isHavingSubMenu: true },
+                    { id: 17, title: 'CAT', isHavingSubMenu: true },
+                ],
+                settings: [
+                    { id: 1, title: 'My Account', link: '/' },
+                    { id: 2, title: 'Support Center', link: '/' },
+                    { id: 3, title: 'Display trade-in', link: '/' },
+                    { id: 4, title: 'Over ons', link: '/' },
+                ],
+                pSubCategories: [
+                    { parent: 1, id: 1, title: 'iPhone', isHavingSubMenu: true },
+                    { parent: 1, id: 2, title: 'iPad', isHavingSubMenu: false },
+                    { parent: 1, id: 3, title: 'iPod', isHavingSubMenu: true },
+                    { parent: 1, id: 4, title: 'Apple Watch', isHavingSubMenu: true },
+                    { parent: 1, id: 5, title: 'Macbook', isHavingSubMenu: true },
+                ],
+                pLastCategories: [
+                    { parent: 1, id: 1, title: 'iPhone SE 3 2022' },
+                    { parent: 1, id: 2, title: 'iPhone 13 Pro Max' },
+                    { parent: 1, id: 3, title: 'iPhone 13 Pro' },
+                    { parent: 1, id: 4, title: 'iPhone 13' },
+                    { parent: 1, id: 5, title: 'iPhone 13 Mini' },
+                    { parent: 1, id: 6, title: 'iPhone 12 Pro Max' },
+                    { parent: 1, id: 7, title: 'iPhone 12 Pro' },
+                    { parent: 1, id: 8, title: 'iPhone 12' },
+                    { parent: 1, id: 9, title: 'iPhone 12 Mini' },
+                    { parent: 1, id: 10, title: 'iPhone 11 Pro Max' },
+                    { parent: 1, id: 11, title: 'iPhone 11' },
+                    { parent: 1, id: 12, title: 'iPhone Xs Max' },
+                    { parent: 1, id: 13, title: 'iPhone Xs' },
+                    { parent: 1, id: 14, title: 'iPhone X' },
+                    { parent: 1, id: 15, title: 'iPhone Xr' },
+                    { parent: 1, id: 16, title: 'iPhone SE 2020' },
+                ],
+                aCategories: [
+                    { id: 1, title: 'Tempered Glass', isHavingSubMenu: true },
+                    { id: 2, title: 'Audio', isHavingSubMenu: true },
+                    { id: 3, title: 'Cables', isHavingSubMenu: true },
+                    { id: 4, title: 'For Car', isHavingSubMenu: true },
+                    { id: 5, title: 'Chargers', isHavingSubMenu: true },
+                    { id: 6, title: 'Adapters', isHavingSubMenu: true },
+                    { id: 7, title: 'Case', isHavingSubMenu: true },
+                    { id: 8, title: 'Storage', isHavingSubMenu: true },
+                    { id: 9, title: 'Sport', isHavingSubMenu: true },
+                    { id: 10, title: 'Precision Cuttin Machine', isHavingSubMenu: true },
+                ],
+                aSubCategories: [
+                    { parent: 1, pId: 1, id: 1, title: 'iPhone', isHavingSubMenu: true },
+                    { parent: 1, pId: 1, id: 2, title: 'iPad', isHavingSubMenu: true },
+                    { parent: 1, pId: 2, id: 3, title: 'Mate Series', isHavingSubMenu: true },
+                    { parent: 1, pId: 2, id: 4, title: 'Y Series', isHavingSubMenu: true },
+                    { parent: 1, pId: 2, id: 5, title: 'Honor Series', isHavingSubMenu: true },
+                    { parent: 1, pId: 2, id: 6, title: 'Ohers Huawei', isHavingSubMenu: true },
+
+                ],
+                aLastCategories: [
+                    { parent: 1, id: 1, title: 'iPhone SE 3 2022' },
+                    { parent: 1, id: 2, title: 'iPhone 13 Pro Max' },
+                    { parent: 1, id: 3, title: 'iPhone 13 Pro' },
+                    { parent: 1, id: 4, title: 'iPhone 13' },
+                    { parent: 1, id: 5, title: 'iPhone 13 Mini' },
+                    { parent: 1, id: 6, title: 'iPhone 12 Pro Max' },
+                    { parent: 1, id: 7, title: 'iPhone 12 Pro' },
+                    { parent: 1, id: 8, title: 'iPhone 12' },
+                    { parent: 1, id: 9, title: 'iPhone 12 Mini' },
+                    { parent: 1, id: 10, title: 'iPhone 11 Pro Max' },
+                    { parent: 1, id: 11, title: 'iPhone 11' },
+                    { parent: 1, id: 12, title: 'iPhone Xs Max' },
+                    { parent: 1, id: 13, title: 'iPhone Xs' },
+                    { parent: 1, id: 14, title: 'iPhone X' },
+                    { parent: 1, id: 15, title: 'iPhone Xr' },
+                    { parent: 1, id: 16, title: 'iPhone SE 2020' },
+                ],
+                tCategories: [
+                    { id: 1, title: 'ESD Products', isHavingSubMenu: true },
+                    { id: 2, title: 'Lightning & Microscope', isHavingSubMenu: true },
+                    { id: 3, title: 'Screwdrivers', isHavingSubMenu: true },
+                    { id: 4, title: 'Tapes', isHavingSubMenu: true },
+                    { id: 5, title: 'Cleaners', isHavingSubMenu: true },
+                    { id: 6, title: 'Glue', isHavingSubMenu: true },
+                    { id: 7, title: 'Grip & Hold', isHavingSubMenu: true },
+                    { id: 8, title: 'Opening Tools', isHavingSubMenu: true },
+                    { id: 9, title: 'Pilers-Scisscor-Knives', isHavingSubMenu: true },
+                    { id: 10, title: 'Programming Tools', isHavingSubMenu: true },
+                ],
+                tSubCategories: [
+                    { parent: 1, id: 1, title: 'ESD Matting', isHavingSubMenu: false },
+                    { parent: 1, id: 2, title: 'Cleanroom', isHavingSubMenu: false },
+                ],
+
+                openSubmenu: false, openLastSubmenu: false, curCategory: {}, curSubCategory: {},
+
+                tab: 'Parts',
+
+                curLang: 'Change Language',
+
+
+                handleResize() {
+                    this.isAboveBreakpoint = window.innerWidth > breakpoint
+                },
+
+                isOpen() {
+                    console.log(this.isAboveBreakpoint)
+                    if (this.isAboveBreakpoint) {
+                        return this.open.above
+                    }
+                    return this.open.below
+                },
+                handleOpen() {
+                    if (this.isAboveBreakpoint) {
+                        this.open.above = true
+                    }
+                    this.open.below = true
+                },
+                handleClose() {
+                    if (this.isAboveBreakpoint) {
+                        this.open.above = false
+                    }
+                    this.open.below = false
+                },
+                handleAway() {
+                    if (!this.openSubmenu) {
+                        this.open.below = false
+                        this.curCategory = {}
+                    } else {
+                        this.openSubmenu = false
+                        this.openLastSubmenu = false
+                        this.curSubCategory = {}
+                    }
+                },
+                handleClickTab(selected) {
+                    this.tab = selected
+                    this.curCategory = {}
+                    if (selected == "Parts") {
+                        this.categories = this.pCategories;
+                    } else if (selected == "Accessories") {
+                        this.categories = this.aCategories;
+                    } else {
+                        this.categories = this.tCategories;
+                    }
+                },
+                handleClickCategory(category) {
+                    if (category.isHavingSubMenu) {
+                        this.openSubmenu = true
+                    } else {
+                        this.openSubmenu = false
+                    }
+                    this.curCategory = category
+                    this.subCategories = []
+                    this.curSubCategory = {}
+                    if (this.tab === "Parts") {
+                        this.pSubCategories.forEach(subCategory => {
+                            if (subCategory.parent === this.curCategory.id) {
+                                this.subCategories.push(subCategory)
+                            }
+                        })
+                    } else if (this.tab === "Accessories") {
+                        this.pCategories.forEach(category => {
+                            let tmpCategory = category
+                            tmpCategory.childs = []
+                            this.aSubCategories.forEach(subCategory => {
+                                if (subCategory.parent === this.curCategory.id && category.id === subCategory.pId) {
+                                    tmpCategory.childs.push(subCategory)
+                                }
+                            })
+                            this.subCategories.push(tmpCategory)
+                        })
+                    } else {
+                        this.tSubCategories.forEach(subCategory => {
+                            if (subCategory.parent === this.curCategory.id) {
+                                this.subCategories.push(subCategory)
+                            }
+                        })
+                    }
+                },
+                handleClickSubCategory(subCategory) {
+                    if (subCategory.isHavingSubMenu) {
+                        this.openLastSubmenu = true
+                    } else {
+                        this.openLastSubmenu = false
+                    }
+                    this.curSubCategory = subCategory
+                    this.lastCategories = []
+                    if (this.tab === "Parts") {
+                        this.pLastCategories.forEach(category => {
+                            if (category.parent === this.curSubCategory.id) {
+                                this.lastCategories.push(category);
+                            }
+                        });
+                    } else if (this.tab === "Accessories") {
+                        this.pLastCategories.forEach(category => {
+                            if (category.parent === this.curSubCategory.id) {
+                                this.lastCategories.push(category);
+                            }
+                        });
+                    } else {
+
+                    }
+                },
+            }
         }
-    </style>
-
-    <header class="flex justify-between items-center bg-white drop-shadow-sm py-4 px-8">
-
-        <!-- Logo -->
-        <a href="/" class="text-lg font-bold">Logo</a>
-
-        <!-- Mobile Menu Toggle -->
-        <button class="flex md:hidden flex-col items-center align-middle" @click="openMenu = !openMenu"
-            :aria-expanded="openMenu" aria-controls="mobile-navigation" aria-label="Navigation Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <span class="text-xs">Menu</span>
-        </button>
-
-        <!-- Main Navigations -->
-        <nav class="hidden md:flex">
-
-            <ul class="flex flex-row gap-2">
-                <li>
-                    <a href="#" class="inline-flex py-2 px-3 bg-slate-200 rounded" aria-current="true">Home</a>
-                </li>
-                <li>
-                    <a href="#" class="inline-flex py-2 px-3 hover:bg-slate-200 rounded">About</a>
-                </li>
-                <li>
-                    <a href="#" class="inline-flex py-2 px-3 hover:bg-slate-200 rounded">Articles</a>
-                </li>
-                <li>
-                    <a href="#" class="inline-flex py-2 px-3 hover:bg-slate-200 rounded">Contact</a>
-                </li>
-            </ul>
-
-        </nav>
-
-    </header>
-
-    <!-- Pop Out Navigation -->
-    <nav id="mobile-navigation" class="fixed top-0 right-0 bottom-0 left-0 backdrop-blur-sm z-10"
-        :class="openMenu ? 'visible' : 'invisible' " x-cloak>
-
-        <!-- UL Links -->
-        <ul class="absolute top-0 right-0 bottom-0 w-10/12 py-4 bg-white drop-shadow-2xl z-10 transition-all"
-            :class="openMenu ? 'translate-x-0' : 'translate-x-full'">
-
-            <li class="border-b border-inherit">
-                <a href="#" class="block p-4" aria-current="true">Home</a>
-            </li>
-            <li class="border-b border-inherit">
-                <a href="#" class="block p-4">About</a>
-            </li>
-            <li class="border-b border-inherit">
-                <a href="#" class="block p-4">Articles</a>
-            </li>
-            <li class="border-b border-inherit">
-                <a href="#" class="block p-4">Contact</a>
-            </li>
-
-        </ul>
-
-        <!-- Close Button -->
-        <button class="absolute top-0 right-0 bottom-0 left-0" @click="openMenu = !openMenu" :aria-expanded="openMenu"
-            aria-controls="mobile-navigation" aria-label="Close Navigation Menu">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute top-2 left-2" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-
-    </nav>
-
+    </script>
 </body>
 
 </html>

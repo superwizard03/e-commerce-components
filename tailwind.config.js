@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin')
 module.exports = {
   content: [
     '*.{html,js}',
@@ -21,6 +22,10 @@ module.exports = {
         'wild-sand': '#F5F5F5',
         'provincial-pink': '#FDF6F3',
         'wild-sand-dark': '#F7F7F7',
+        'weak-gray': '#E8E8E8'
+      },
+      fontFamily: {
+        montserrat: ["Montserrat"],
       },
       fontSize: {
         nav: ['16px', {
@@ -51,6 +56,9 @@ module.exports = {
         xxxl: ['48px', '68px'],
         superxl: ['54px', '72px'],
       },
+      width: {
+        'sub-menu': '32rem',
+      }
     },
   },
   plugins: [],
