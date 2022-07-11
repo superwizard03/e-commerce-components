@@ -45,20 +45,21 @@
                         Tools</button>
                 </div>
                 <div :class="{ 'md:block hidden': openSubmenu || openLastSubmenu }">
-                    <div class="py-2">
+                    <div class="py-2 px-10">
                         <div x-show="tab === 'Accessories'" class="mb-3">
-                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
+                            <button type="button" class="flex items-center justify-between w-full px-1 group">
                                 <span>For Apple accessoires</span>
                             </button>
-                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
+                            <button type="button" class="flex items-center justify-between w-full p-1 group">
                                 <span>Samsung accessoires</span>
                             </button>
-                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
+                            <button type="button" class="flex items-center justify-between w-full p-1 group">
                                 <span>NOVAL</span>
                             </button>
                         </div>
                         <template x-for="category in categories">
-                            <button type="button" class="flex items-center justify-between group w-full p-1 px-10"
+                            <button type="button"
+                                class="flex items-center justify-between group w-full p-1 hover:bg-wild-sand-dark rounded-3xl"
                                 @mouseover="handleHoverCategory(category)" @mouseout="handleHoutCategory()"
                                 @click="handleClickCategory(category)">
                                 <span x-text="category.title"></span>
@@ -95,7 +96,7 @@
                     x-transition:enter-end="opacity-100 scale-100" x-transition:leave="ease-in transition-slow"
                     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90"
                     @click.away="handleAway()" :class="{ 'md:left-80 left-0': openSubmenu}"
-                    class="bg-white shadow rounded-sm rounded-xl absolute mt-2 ml-1 p-5 top-32 list md:w-auto w-full md:h-auto h-full text-sm font-medium dark:bg-slate-800">
+                    class="bg-white shadow rounded-sm rounded-xl absolute mt-2 ml-1 p-5 top-32 list md:w-2/3 w-full md:h-auto h-full text-sm font-medium dark:bg-slate-800">
                     <div class="flex justify-between items-center p-4">
                         <p class="text-xbase font-bold" x-text="curCategory.title">
                         </p>
@@ -109,7 +110,8 @@
                             class="w-80 pl-1 pr-5 h-full overflow-y-auto custom-scrollbar-y">
                             <template x-if="tab !== 'Accessories'">
                                 <template x-for="category in subCategories">
-                                    <button type="button" class="flex items-center justify-between group w-full p-1"
+                                    <button type="button"
+                                        class="flex items-center justify-between group w-full p-1 hover:bg-wild-sand-dark rounded-3xl"
                                         @mouseover="handleHoverSubCategory(category)"
                                         @mouseout="handleHoutSubCategory()" @click="handleClickSubCategory(category)">
                                         <span x-text="category.title"></span>
@@ -135,7 +137,7 @@
                                         </div>
                                         <template x-for="child in category.childs">
                                             <button type="button"
-                                                class="flex items-center justify-between w-full p-1 pl-2"
+                                                class="flex items-center justify-between w-full p-1 pl-2 hover:bg-wild-sand-dark rounded-3xl"
                                                 @mouseover="handleHoverSubCategory(category)"
                                                 @mouseout="handleHoutSubCategory()"
                                                 @click="handleClickSubCategory(child)">
@@ -302,6 +304,27 @@
                     { parent: 1, id: 14, title: 'iPhone X' },
                     { parent: 1, id: 15, title: 'iPhone Xr' },
                     { parent: 1, id: 16, title: 'iPhone SE 2020' },
+                    { parent: 1, id: 17, title: 'iPhone 11 Pro Max' },
+                    { parent: 1, id: 18, title: 'iPhone 11' },
+                    { parent: 1, id: 19, title: 'iPhone Xs Max' },
+                    { parent: 1, id: 20, title: 'iPhone Xs' },
+                    { parent: 1, id: 21, title: 'iPhone X' },
+                    { parent: 1, id: 22, title: 'iPhone Xr' },
+                    { parent: 1, id: 23, title: 'iPhone SE 2020' },
+                    { parent: 1, id: 24, title: 'iPhone 11 Pro Max' },
+                    { parent: 1, id: 25, title: 'iPhone 11' },
+                    { parent: 1, id: 26, title: 'iPhone Xs Max' },
+                    { parent: 1, id: 27, title: 'iPhone Xs' },
+                    { parent: 1, id: 28, title: 'iPhone X' },
+                    { parent: 1, id: 29, title: 'iPhone Xr' },
+                    { parent: 1, id: 30, title: 'iPhone SE 2020' },
+                    { parent: 1, id: 31, title: 'iPhone 11 Pro Max' },
+                    { parent: 1, id: 32, title: 'iPhone 11' },
+                    { parent: 1, id: 33, title: 'iPhone Xs Max' },
+                    { parent: 1, id: 34, title: 'iPhone Xs' },
+                    { parent: 1, id: 35, title: 'iPhone X' },
+                    { parent: 1, id: 36, title: 'iPhone Xr' },
+                    { parent: 1, id: 37, title: 'iPhone SE 2020' },
                 ],
                 aCategories: [
                     { id: 1, title: 'Tempered Glass', isHavingSubMenu: true },
