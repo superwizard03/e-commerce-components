@@ -105,9 +105,9 @@
                         </p>
                     </div>
                     <!-- Sub Menu -->
-                    <div class="p-4 flex h-auto md:h-80">
+                    <div class="p-4 flex h-auto md:h-96 w-full">
                         <div :class="{'md:block hidden': openLastSubmenu}"
-                            class="w-80 pl-1 pr-5 h-full overflow-y-auto custom-scrollbar-y">
+                            class="w-1/3 pl-1 pr-5 h-full overflow-y-auto custom-scrollbar-y">
                             <template x-if="tab !== 'Accessories'">
                                 <template x-for="category in subCategories">
                                     <button type="button"
@@ -160,10 +160,10 @@
                             </template>
                         </div>
                         <!-- Last Menu -->
-                        <div :class="{'md:block hidden': openSubmenu && !openLastSubmenu}">
+                        <div :class="{'md:block hidden': openSubmenu && !openLastSubmenu}" class="w-full">
                             <template x-if="openLastSubmenu && tab !== 'Tools'">
                                 <div
-                                    class="flex flex-col flex-wrap w-sub-menu md:border-l md:border-gray h-full pl-5 overflow-x-auto custom-scrollbar-x">
+                                    class="flex flex-col flex-wrap w-full md:border-l md:border-gray h-full pl-5 overflow-x-auto custom-scrollbar-x">
                                     <template x-for="category in lastCategories">
                                         <template x-if="category.parent == curSubCategory.id">
                                             <button type="button" class="flex items-center w-64 p-1" @click="">
