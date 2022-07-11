@@ -47,26 +47,24 @@
                 <div :class="{ 'md:block hidden': openSubmenu || openLastSubmenu }">
                     <div class="py-2">
                         <div x-show="tab === 'Accessories'" class="mb-3">
-                            <button type="button"
-                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
                                 <span>For Apple accessoires</span>
                             </button>
-                            <button type="button"
-                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
                                 <span>Samsung accessoires</span>
                             </button>
-                            <button type="button"
-                                class="flex items-center justify-between w-full p-1 px-10 group hover:bg-fd-dark-blue hover:text-white">
+                            <button type="button" class="flex items-center justify-between w-full p-1 px-10 group">
                                 <span>NOVAL</span>
                             </button>
                         </div>
                         <template x-for="category in categories">
-                            <button type="button"
-                                class="flex items-center justify-between group w-full p-1 px-10 hover:bg-fd-dark-blue hover:text-white"
+                            <button type="button" class="flex items-center justify-between group w-full p-1 px-10"
+                                @mouseover="handleHoverCategory(category)" @mouseout="handleHoutCategory()"
                                 @click="handleClickCategory(category)">
                                 <span x-text="category.title"></span>
                                 <template x-if="category.isHavingSubMenu">
-                                    <div :class="category.id === curCategory.id ? 'visible' : 'invisible' ">
+                                    <div
+                                        :class="category.id === curHoverCategory.id || category.id === curCategory.id ? 'visible' : 'invisible' ">
                                         <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor" viewBox="0 0 20 20"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path fillrule="evenodd"
@@ -108,15 +106,15 @@
                     <!-- Sub Menu -->
                     <div class="p-4 flex h-auto md:h-80">
                         <div :class="{'md:block hidden': openLastSubmenu}"
-                            class="w-80 pl-1 pr-5 h-full overflow-y-auto">
+                            class="w-80 pl-1 pr-5 h-full overflow-y-auto custom-scrollbar-y">
                             <template x-if="tab !== 'Accessories'">
                                 <template x-for="category in subCategories">
-                                    <button type="button"
-                                        class="flex items-center justify-between group w-full p-1 hover:bg-fd-dark-blue hover:text-white"
-                                        @click="handleClickSubCategory(category)">
+                                    <button type="button" class="flex items-center justify-between group w-full p-1"
+                                        @mouseover="handleHoverSubCategory(category)"
+                                        @mouseout="handleHoutSubCategory()" @click="handleClickSubCategory(category)">
                                         <span x-text="category.title"></span>
                                         <template x-if="category.isHavingSubMenu">
-                                            <div :class="category.id === curSubCategory.id ? 'visible' : 'invisible'"
+                                            <div :class="category.id === curHoverSubCategory.id || category.id === curSubCategory.id ? 'visible' : 'invisible'"
                                                 class="mr-8">
                                                 <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor"
                                                     viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -137,11 +135,13 @@
                                         </div>
                                         <template x-for="child in category.childs">
                                             <button type="button"
-                                                class="flex items-center justify-between w-full p-1 pl-2 hover:bg-fd-dark-blue hover:text-white"
+                                                class="flex items-center justify-between w-full p-1 pl-2"
+                                                @mouseover="handleHoverSubCategory(category)"
+                                                @mouseout="handleHoutSubCategory()"
                                                 @click="handleClickSubCategory(child)">
                                                 <span x-text="child.title"></span>
                                                 <template x-if="child.isHavingSubMenu">
-                                                    <div :class="child.id === curSubCategory.id ? 'visible' : 'invisible'"
+                                                    <div :class="child.id === curHoverSubCategory.id || child.id === curSubCategory.id ? 'visible' : 'invisible'"
                                                         class="mr-8">
                                                         <svg class="w-4 h-4 ml-1 text-gray" fill="currentColor"
                                                             viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -161,12 +161,10 @@
                         <div :class="{'md:block hidden': openSubmenu && !openLastSubmenu}">
                             <template x-if="openLastSubmenu && tab !== 'Tools'">
                                 <div
-                                    class="flex flex-col flex-wrap w-sub-menu md:border-l md:border-gray h-full pl-5 overflow-x-auto">
+                                    class="flex flex-col flex-wrap w-sub-menu md:border-l md:border-gray h-full pl-5 overflow-x-auto custom-scrollbar-x">
                                     <template x-for="category in lastCategories">
                                         <template x-if="category.parent == curSubCategory.id">
-                                            <button type="button"
-                                                class="flex items-center w-64 p-1 hover:bg-fd-dark-blue hover:text-white"
-                                                @click="">
+                                            <button type="button" class="flex items-center w-64 p-1" @click="">
                                                 <span x-text="category.title"></span>
                                             </button>
                                         </template>
@@ -361,7 +359,11 @@
                     { parent: 1, id: 2, title: 'Cleanroom', isHavingSubMenu: false },
                 ],
 
-                openSubmenu: false, openLastSubmenu: false, curCategory: {}, curSubCategory: {},
+                openSubmenu: false, openLastSubmenu: false,
+
+                curHoverCategory: {}, curHoverSubCategory: {},
+
+                curCategory: {}, curSubCategory: {},
 
                 tab: 'Parts',
 
@@ -413,6 +415,12 @@
                         this.categories = this.tCategories;
                     }
                 },
+                handleHoverCategory(category) {
+                    this.curHoverCategory = category
+                },
+                handleHoutCategory() {
+                    this.curHoverCategory = {}
+                },
                 handleClickCategory(category) {
                     if (category.isHavingSubMenu) {
                         this.openSubmenu = true
@@ -446,6 +454,12 @@
                             }
                         })
                     }
+                },
+                handleHoverSubCategory(subCategory) {
+                    this.curHoverSubCategory = subCategory
+                },
+                handleHoutSubCategory() {
+                    this.curHoverSubCategory = {}
                 },
                 handleClickSubCategory(subCategory) {
                     if (subCategory.isHavingSubMenu) {
