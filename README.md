@@ -1,1 +1,1 @@
-# 👩  Shipping costs component.
+# 👩  E-commerce components.
